@@ -258,6 +258,15 @@ foreach (Cookie cookie in cookies) {
 ```
 
 ### Proxy
+Supporting proxy string templates:
+```
+[ip]:[port]    //e.g., http://127.0.0.1:80
+[ip]:[port]:[login]:[pass]     //e.g., http://127.0.0.1:80:login:pass
+[login]:[pass]@[ip]:[port]     //e.g., http://login:pass@127.0.0.1:80
+
+```
+
+
 Your proxy server:
 ```csharp
 // Type: HTTP / HTTPS 

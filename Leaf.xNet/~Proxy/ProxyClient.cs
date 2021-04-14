@@ -272,14 +272,57 @@ namespace Leaf.xNet
 
             int port = 0;
             string host = values[0];
+            string username = null;
+            string password = null;
 
-            if (values.Length >= 2)
+            if (!proxyAddress.Contains("@"))
             {
+                if (values.Length >= 2)
+                {
+                    #region Получение порта
+
+                    try
+                    {
+                        port = int.Parse(values[1]);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is FormatException || ex is OverflowException)
+                        {
+                            throw new FormatException(
+                                Resources.InvalidOperationException_ProxyClient_WrongPort, ex);
+                        }
+
+                        throw;
+                    }
+
+                    if (!ExceptionHelper.ValidateTcpPort(port))
+                    {
+                        throw new FormatException(
+                            Resources.InvalidOperationException_ProxyClient_WrongPort);
+                    }
+
+                    #endregion
+                }
+
+                if (values.Length >= 3)
+                    username = values[2];
+
+                if (values.Length >= 4)
+                    password = values[3]; 
+            }
+            else
+            {
+                //если строка была формата http://login:pass@ip:port
+                username = proxyAddress.Split('@')[0].Split(':')[0];
+                password = proxyAddress.Split('@')[0].Split(':')[1];
+                host = proxyAddress.Split('@')[1].Split(':')[0];
+
                 #region Получение порта
 
                 try
                 {
-                    port = int.Parse(values[1]);
+                    port = int.Parse(proxyAddress.Split('@')[1].Split(':')[1]);
                 }
                 catch (Exception ex)
                 {
@@ -299,16 +342,9 @@ namespace Leaf.xNet
                 }
 
                 #endregion
+
+
             }
-
-            string username = null;
-            string password = null;
-
-            if (values.Length >= 3)
-                username = values[2];
-
-            if (values.Length >= 4)
-                password = values[3];
 
             return ProxyHelper.CreateProxyClient(proxyType, host, port, username, password);
         }
