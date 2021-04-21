@@ -1446,18 +1446,16 @@ namespace Leaf.xNet
         {
             string contentEncoding = _headers[Http.Headers[HttpHeader.ContentEncoding]].ToLower();
 
-            switch (contentEncoding)
+            return new string[]
             {
-                case "gzip":
-                    return new GZipStream(stream, CompressionMode.Decompress, true);
-
-                case "deflate":
-                    return new DeflateStream(stream, CompressionMode.Decompress, true);
-
-                default:
-                    throw new InvalidOperationException(string.Format(
-                        Resources.InvalidOperationException_NotSupportedEncodingFormat, contentEncoding));
-            }
+                "gzip",
+                "deflate"
+            }.FirstOrDefault(x => contentEncoding.Contains(x)) switch
+            {
+                "gzip" => new GZipStream(stream, CompressionMode.Decompress, true),
+                "deflate" => new DeflateStream(stream, CompressionMode.Decompress, true),
+                _ => throw new InvalidOperationException(string.Format(Resources.InvalidOperationException_NotSupportedEncodingFormat, contentEncoding))
+            };
         }
 
         // ReSharper disable once SuggestBaseTypeForParameter        

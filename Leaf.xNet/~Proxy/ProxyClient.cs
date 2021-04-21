@@ -279,7 +279,8 @@ namespace Leaf.xNet
 
                 try
                 {
-                    port = int.Parse(values[1]);
+
+                    port = int.Parse(values[1].Contains("@") ? values[1].Split('@')[0] : values[1]);
                 }
                 catch (Exception ex)
                 {
@@ -304,11 +305,19 @@ namespace Leaf.xNet
             string username = null;
             string password = null;
 
-            if (values.Length >= 3)
-                username = values[2];
+            if (proxyAddress.Contains("@"))
+            {
+                username = proxyAddress.Split('@')[1].Split(':')[0];
+                password = proxyAddress.Split('@')[1].Split(':')[1];
+            }
+            else
+            {
+                if (values.Length >= 3)
+                    username = values[2];
 
-            if (values.Length >= 4)
-                password = values[3];
+                if (values.Length >= 4)
+                    password = values[3];
+            }
 
             return ProxyHelper.CreateProxyClient(proxyType, host, port, username, password);
         }

@@ -268,8 +268,14 @@ httpRequest.Proxy = Socks4ProxyClient.Parse("127.0.0.1:9000");
 httpRequest.Proxy = Socks4aProxyClient.Parse("127.0.0.1:9000");
 // Type: Socks5
 httpRequest.Proxy = Socks5ProxyClient.Parse("127.0.0.1:9000");
-
 ```
+```
+Supports proxy formats:
+[IPAddress]:[Port] // e.g. 127.0.0.1:80
+[IPAddress]:[Port]:[Username]:[Password] // e.g. 127.0.0.1:80:username:pass
+[IPAddress]:[Port]@[Username]:[Password] // e.g. 127.0.0.1:80@username:pass
+```
+
 
 Debug proxy server (Charles / Fiddler):
 ```csharp
