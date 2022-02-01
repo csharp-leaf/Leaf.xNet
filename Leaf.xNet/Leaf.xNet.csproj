@@ -41,7 +41,7 @@
 
   <PropertyGroup>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Leaf.xNet.xml</DocumentationFile>
-    <Version>5.2.0</Version>
+    <Version>5.2.1</Version>
     <RepositoryUrl>https://github.com/csharp-leaf/Leaf.xNet</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageProjectUrl>https://github.com/csharp-leaf</PackageProjectUrl>
