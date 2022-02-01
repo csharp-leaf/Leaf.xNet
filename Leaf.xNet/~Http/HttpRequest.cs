@@ -251,6 +251,20 @@ namespace Leaf.xNet
         /// <value>Значение по умолчанию — <see langword="null"/>.</value>
         public ProxyClient Proxy { get; set; }
 
+        /// <summary>
+        /// Реализация SSL подключения. Провайдер можно задать через <see cref="SslProvider{T}"/>.
+        /// </summary>
+        private ISslProvider RequestSslProvider {
+            get {
+                if (_requestSslProvider != null)
+                    return _requestSslProvider;
+
+                return _requestSslProvider = new SystemSslProvider();
+            }
+            set => _requestSslProvider = value;
+        }
+
+        private ISslProvider _requestSslProvider;
 
         /// <summary>
         /// Возвращает или задает возможные протоколы SSL.
@@ -3035,14 +3049,17 @@ namespace Leaf.xNet
             if (!disposing || TcpClient == null)
                 return;
 
-            TcpClient.Close();
+            TcpClient?.Close();
             TcpClient = null;
 
-            ClientStream?.Dispose();
-            ClientStream = null;
-            
-            ClientNetworkStream?.Dispose();
-            ClientNetworkStream = null;
+            if (RequestSslProvider.Disposable)
+            {
+                ClientStream?.Dispose();
+                ClientStream = null;
+
+                ClientNetworkStream?.Dispose();
+                ClientNetworkStream = null;
+            }
 
             _keepAliveRequestCount = 0;
         }
@@ -3484,6 +3501,21 @@ namespace Leaf.xNet
 
             return tcpClient;
         }
+        
+        public SystemSslProvider SslProvider()
+        {
+            return SslProvider<SystemSslProvider>();
+        }
+
+        public T SslProvider<T>() where T: class, ISslProvider, new()
+        {
+            if (typeof(T) == RequestSslProvider.GetType())
+                return RequestSslProvider as T;
+
+            var sslProvider = new T();
+            RequestSslProvider = sslProvider;
+            return sslProvider;
+        }
 
         private void CreateConnection(Uri address)
         {
@@ -3495,12 +3527,7 @@ namespace Leaf.xNet
             {
                 try
                 {
-                    var sslStream = SslCertificateValidatorCallback == null
-                        ? new SslStream(ClientNetworkStream, false, Http.AcceptAllCertificationsCallback)
-                        : new SslStream(ClientNetworkStream, false, SslCertificateValidatorCallback);
-
-                    sslStream.AuthenticateAsClient(address.Host, new X509CertificateCollection(), SslProtocols, false);
-                    ClientStream = sslStream;
+                    ClientStream = RequestSslProvider.Initialize(address, ClientNetworkStream);
                 }
                 catch (Exception ex)
                 {
@@ -3509,7 +3536,6 @@ namespace Leaf.xNet
                         throw NewHttpException(Resources.HttpException_FailedSslConnect, ex,
                             HttpExceptionStatus.ConnectFailure);
                     }
-
                     throw;
                 }
             }
