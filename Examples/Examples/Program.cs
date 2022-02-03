@@ -8,8 +8,10 @@ namespace Examples
 {
     internal class Program
     {
-        private static readonly byte[] GoogleCertificateHash =
-            {44, 60, 36, 98, 59, 198, 43, 64, 55, 107, 112, 17, 28, 134, 231, 182, 106, 227, 103, 140};
+        private static readonly byte[][] TrustedHashes = {
+            // Facebook.com trusted cert
+            new byte[] {139, 78, 241, 109, 163, 64, 44, 211, 65, 100, 98, 136, 174, 213, 161, 49, 10, 104, 156, 98}
+        };
 
         private static string ArrayToString(byte[] arr)
         {
@@ -36,15 +38,22 @@ namespace Examples
             var sslProvider = req.SslProvider();
             sslProvider.SslCertificateValidatorCallback += (sender, certificate, chain, errors) => {
                 // Save required hash to const byte array and compare with it
-                byte[] certHash = certificate.GetCertHash();
+                byte[] currentCertHash = certificate.GetCertHash();
 
+                // Print current received cert hash
                 Console.WriteLine("Received Cert Hash: ");
-                Console.WriteLine(ArrayToString(certHash));
+                Console.WriteLine(ArrayToString(currentCertHash));
 
-                Console.WriteLine("Expected Cert Hash: ");
-                Console.WriteLine(ArrayToString(GoogleCertificateHash));
-                
-                return certHash.SequenceEqual(GoogleCertificateHash);
+                // Print all trusted cert hashes
+                Console.WriteLine("Trusted Cert Hashes: ");
+                foreach (byte[] trustedHash in TrustedHashes)
+                {
+                    Console.WriteLine(ArrayToString(trustedHash));    
+                }
+
+                // use "return true" if you need only log cert hashes
+                return TrustedHashes.Any(trustedHash => currentCertHash.SequenceEqual(trustedHash));
+                // return true;
             };
             
             // When you have proxy software with HTTPS decryption
