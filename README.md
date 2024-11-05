@@ -10,10 +10,6 @@
 It's a based on [Extreme.Net](https://github.com/Fedorus/Extreme.Net). And original library [xNet](https://github.com/X-rus/xNet).  
 Usage same like original xNet.
 
----
-
-[![](./assets/capsolver-ads-min.png)](https://www.capsolver.com/?utm_source=github&utm_medium=repo&utm_campaign=scraping&utm_term=Leaf.xNet)
-
 ## Contacts
 **Telegram**: [@kelog](https://t.me/kelog)  
 **E-Mail**: mixtape774@gmail.com
